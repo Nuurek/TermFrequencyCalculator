@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from nltk import PorterStemmer
+
 from documents_loader import DocumentsLoader
 from terms_loader import TermsLoader
 from tokenizer import Tokenizer
@@ -15,8 +17,14 @@ if __name__ == '__main__':
 
     tokenizer = Tokenizer()
     tokenized_documents = [tokenizer.tokenize(document) for document in documents]
-    print(tokenized_documents)
+
+    stemmer = PorterStemmer()
+    stemmed_documents = [[stemmer.stem(token) for token in document] for document in tokenized_documents]
+    print(stemmed_documents)
 
     terms_loader = TermsLoader(TERMS_PATH)
     terms = terms_loader.load()
     print(terms)
+
+    stemmed_terms = [stemmer.stem(term) for term in terms]
+    print(stemmed_terms)
