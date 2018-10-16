@@ -1,4 +1,7 @@
 from pathlib import Path
+from typing import List
+
+from document import Document
 
 
 class DocumentsLoader:
@@ -6,17 +9,24 @@ class DocumentsLoader:
     def __init__(self, file_path: Path):
         self._file_path: Path = file_path
 
-    def load(self, encoding='utf-16'):
+    def load(self, encoding='utf-16') -> List[Document]:
         documents = []
         with self._file_path.open('r', encoding=encoding) as file:
-            document = ''
+            title = ''
+            content = ''
 
             lines = file.readlines()
             for line in lines:
-                if line != '\n':
-                    document += line
+                line = line.replace('\n', ' ')
+                if line != ' ':
+                    if content == '':
+                        title = line
+
+                    content += line
                 else:
-                    documents.append(document.replace('\n', ' '))
-                    document = ''
+                    document = Document(title, content)
+                    documents.append(document)
+                    title = ''
+                    content = ''
 
         return documents

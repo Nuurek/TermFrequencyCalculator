@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from term import Term
+
 
 class TermsLoader:
 
@@ -12,6 +14,8 @@ class TermsLoader:
             terms = []
 
             for line in lines:
-                terms.append(line.replace('\n', ''))
+                line = line.replace('\n', '')
+                term = Term(line)
+                terms.append(term)
 
             return terms

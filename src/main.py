@@ -13,18 +13,21 @@ TERMS_PATH = RESOURCES_PATH / 'keywords.txt'
 if __name__ == '__main__':
     documents_loader = DocumentsLoader(DOCUMENTS_PATH)
     documents = documents_loader.load()
-    print(documents)
+    print([document.content for document in documents])
 
     tokenizer = Tokenizer()
-    tokenized_documents = [tokenizer.tokenize(document) for document in documents]
-
     stemmer = PorterStemmer()
-    stemmed_documents = [[stemmer.stem(token) for token in document] for document in tokenized_documents]
-    print(stemmed_documents)
+    for document in documents:
+        document.tokens = tokenizer.tokenize(document.content)
+        document.tokens = [stemmer.stem(token) for token in document.tokens]
+
+    print([document.tokens for document in documents])
 
     terms_loader = TermsLoader(TERMS_PATH)
     terms = terms_loader.load()
-    print(terms)
+    print([term.original for term in terms])
 
-    stemmed_terms = [stemmer.stem(term) for term in terms]
-    print(stemmed_terms)
+    for term in terms:
+        term.stemmed = stemmer.stem(term.original)
+
+    print([term.stemmed for term in terms])
