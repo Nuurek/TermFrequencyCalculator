@@ -1,6 +1,5 @@
 from pathlib import Path
-
-from term import Term
+from typing import Set
 
 
 class TermsLoader:
@@ -8,14 +7,13 @@ class TermsLoader:
     def __init__(self, file_path: Path):
         self._file_path = file_path
 
-    def load(self):
+    def load(self) -> Set[str]:
         with self._file_path.open('r') as file:
             lines = file.readlines()
-            terms = []
+            terms = set()
 
             for line in lines:
-                line = line.replace('\n', '')
-                term = Term(line)
-                terms.append(term)
+                term = line.replace('\n', '')
+                terms.add(term)
 
             return terms
