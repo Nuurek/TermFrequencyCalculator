@@ -24,3 +24,5 @@ if __name__ == '__main__':
     print([document.bag_of_words for document in calculator._documents])
     print([document.term_frequencies for document in calculator._documents])
     print(calculator._inverse_document_frequencies)
+    print([document.inverse_term_frequencies for document in calculator._documents])
+    print([document.vector_length for document in calculator._documents])

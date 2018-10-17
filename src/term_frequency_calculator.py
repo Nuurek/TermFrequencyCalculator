@@ -1,4 +1,4 @@
-from math import log
+from math import log, sqrt
 from typing import Set, List, Optional, Dict
 
 from nltk import PorterStemmer
@@ -11,7 +11,8 @@ class TermFrequencyCalculator:
     _stemmer = PorterStemmer()
     _tokenizer = Tokenizer()
 
-    _numbers_of_documents_containing_term: Optional[Dict[str, int]] = {}
+    _numbers_of_documents_containing_term: Optional[Dict[str, int]] = None
+    _inverse_document_frequencies: Optional[Dict[str, float]] = None
 
     def __init__(self, terms: Set[str], documents):
         self._terms = terms
@@ -19,13 +20,13 @@ class TermFrequencyCalculator:
 
         self._documents: List[Document] = documents
         self._prepare_documents()
-        self._calculate_documents_term_frequencies()
         self._calculate_numbers_of_documents_containing_term()
         self._remove_unused_terms()
+        self._calculate_documents_term_frequencies()
 
-        self._inverse_document_frequencies = {
-            term: self._inverse_document_frequency(term) for term in self._terms
-        }
+        self._calculate_terms_inverse_document_frequencies()
+        self._calculate_documents_inverse_term_frequencies()
+        self._calculate_documents_vector_lengths()
 
     def _prepare_terms(self):
         self._terms = set([self._stemmer.stem(term) for term in self._terms])
@@ -42,12 +43,6 @@ class TermFrequencyCalculator:
 
             document.maximum_value_of_bag_of_words = max(document.bag_of_words.values())
 
-    def _calculate_documents_term_frequencies(self):
-        for document in self._documents:
-            document.term_frequencies = {
-                term: document.bag_of_words[term] / document.maximum_value_of_bag_of_words for term in self._terms
-            }
-
     def _calculate_numbers_of_documents_containing_term(self):
         self._numbers_of_documents_containing_term = {
             term: sum([
@@ -58,7 +53,35 @@ class TermFrequencyCalculator:
     def _remove_unused_terms(self):
         self._terms = set([term for term in self._terms if self._numbers_of_documents_containing_term[term] > 0])
 
+        for document in self._documents:
+            document.bag_of_words = {
+                term: document.bag_of_words[term] for term in self._terms
+            }
+
+    def _calculate_documents_term_frequencies(self):
+        for document in self._documents:
+            document.term_frequencies = {
+                term: document.bag_of_words[term] / document.maximum_value_of_bag_of_words for term in self._terms
+            }
+
+    def _calculate_terms_inverse_document_frequencies(self):
+        self._inverse_document_frequencies = {
+            term: self._inverse_document_frequency(term) for term in self._terms
+        }
+
     def _inverse_document_frequency(self, term):
         number_of_documents = len(self._documents)
         number_of_documents_containing_term = self._numbers_of_documents_containing_term[term]
         return log(number_of_documents / number_of_documents_containing_term, 10)
+
+    def _calculate_documents_inverse_term_frequencies(self):
+        for document in self._documents:
+            document.inverse_term_frequencies = {
+                term: document.term_frequencies[term] * self._inverse_document_frequencies[term] for term in self._terms
+            }
+
+    def _calculate_documents_vector_lengths(self):
+        for document in self._documents:
+            document.vector_length = sqrt(sum([
+                pow(frequency, 2) for frequency in document.inverse_term_frequencies.values()
+            ]))

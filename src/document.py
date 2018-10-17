@@ -8,6 +8,8 @@ class Document:
     bag_of_words: Optional[Dict[str, int]]
     maximum_value_of_bag_of_words: Optional[int]
     term_frequencies: Optional[Dict[str, float]]
+    inverse_term_frequencies: Optional[Dict[str, float]]
+    vector_length: Optional[float]
 
     def __init__(self, title, content):
         self.title = title
