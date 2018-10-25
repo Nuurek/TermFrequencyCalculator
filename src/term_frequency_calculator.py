@@ -104,8 +104,15 @@ class TermFrequencyCalculator:
 
     def _calculate_document_term_frequencies(self, document: Document):
         document.term_frequencies = {
-            term: document.bag_of_words[term] / document.maximum_value_of_bag_of_words for term in self._terms
+            term: self._calculate_term_frequency(document, term) for term in self._terms
         }
+
+    @staticmethod
+    def _calculate_term_frequency(document: Document, term: str) -> float:
+        if document.maximum_value_of_bag_of_words > 0:
+            return document.bag_of_words[term] / document.maximum_value_of_bag_of_words
+        else:
+            return 0.0
 
     def _calculate_terms_inverse_document_frequencies(self):
         self._inverse_document_frequencies = {
@@ -138,11 +145,11 @@ class TermFrequencyCalculator:
             pow(frequency, 2) for frequency in document.inverse_term_frequencies.values()
         ]))
 
-    def _calculate_documents_similarity(self, first: Document, second: Document):
+    def _calculate_documents_similarity(self, first: Document, second: Document) -> float:
         numerator = 0
         for term in self._terms:
             numerator += first.inverse_term_frequencies[term] * second.inverse_term_frequencies[term]
 
         denominator = first.vector_length * second.vector_length
 
-        return numerator / denominator
+        return numerator / denominator if denominator > 0 else 0.0

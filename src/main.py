@@ -18,9 +18,12 @@ if __name__ == '__main__':
     calculator = TermFrequencyCalculator(terms, documents)
 
     while True:
+        print('Enter query')
         query = input()
-        results = calculator.search(query)
+        if query:
+            results = calculator.search(query)
 
-        for result in results:
-            print(f'{result.similarity}\t{result.document.title}')
-        print('\n')
+            for result in results:
+                similarity = '{:0.6f}'.format(result.similarity)
+                print(f'{similarity}\t{result.document.title}')
+            print('\n')

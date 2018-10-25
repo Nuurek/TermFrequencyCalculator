@@ -24,8 +24,9 @@ class DocumentsLoader:
 
                     content += line
                 else:
-                    document = Document(title, content)
-                    documents.append(document)
+                    if content != '':
+                        document = Document(title, content)
+                        documents.append(document)
                     title = ''
                     content = ''
 
